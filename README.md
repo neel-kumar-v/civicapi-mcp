@@ -2,30 +2,74 @@
 
 Model Context Protocol (MCP) server for [civicAPI](https://civicapi.org) — live and historical election results worldwide. No API keys required.
 
-Wraps the civicAPI v2 endpoints:
+## Tools
 
 | Tool | civicAPI endpoint |
 |------|-------------------|
-| `search_elections` | `GET /api/v2/race/search` |
-| `get_race_by_id` | `GET /api/v2/race/{id}` |
+| `search_races` | `GET /api/v2/race/search` |
+| `get_race_by_id` | `GET /api/v2/race/{raceid}` |
+| `get_race_history` | `GET /api/v2/race/{raceid}/history` or `/history/{timestamp}` |
+| `get_election_dates` | `GET /api/v2/getElectionDates` |
+| `get_election_years` | `GET /api/v2/getElectionYears` |
 | `get_api_status` | `GET /api/v2/status` |
+
+### `search_races`
+
+Search by name, country, province, district, election type, and date range. At least one filter is required.
+
+- `query` — race name (slow alone; prefer geographic/date filters)
+- `country` — ISO 3166-1 alpha-2 (`US`) or alpha-3 for limited-recognition states (`USA`)
+- `province` — e.g. `AL`, `JP-07`
+- `district` — English district name
+- `election_type`
+- `start_date` / `end_date` — `YYYY-MM-DD`
+- `limit` — default 20, max 50000
+
+### `get_race_by_id`
+
+Full race payload. Optional flags:
+
+- `generate_map` / `generate_map_png` — rendered map (SVG or PNG)
+- `testdata` — random test data
+- `data` — `json` or `csv`
+- `embed` — embed iframe JSON
+- `precinct` — include precinct-level results
+- `format` — map style (`percentage`, `raw`, etc.)
+
+Non-JSON responses (CSV, SVG, PNG) are returned with `_content_type` and `_body` or `_body_base64`.
+
+### `get_race_history`
+
+Historical snapshots for timeline/progression views. Data available for races tracked after October 9, 2025.
+
+- Omit `timestamp` to list available UTC timestamps
+- Set `timestamp` (`YYYY-MM-DDTHH:MM:SS.sssZ`) for a full snapshot
+- Optional: `generate_map`, `generate_map_png`, `light`, `precinct`
+
+### `get_election_dates`
+
+Election dates for a year (defaults to current year). Optional `country` and `province` filters.
+
+### `get_election_years`
+
+All election years in the database.
+
+### `get_api_status`
+
+Service health check (`{"status":"ok"}` when available).
 
 ## Hosted MCP (Vercel)
 
-After deploying to Vercel, connect clients to:
-
-Production deployment: **https://civicapi-mcp.vercel.app/mcp**
+Production: **https://civicapi-mcp.vercel.app/mcp**
 
 Use **Streamable HTTP** transport (not stdio).
 
 ### Cursor
 
-Add to `~/.cursor/mcp.json` (or project `.cursor/mcp.json`):
-
 ```json
 {
   "mcpServers": {
-    "civic-api": {
+    "civic-api-hosted": {
       "url": "https://civicapi-mcp.vercel.app/mcp"
     }
   }
@@ -34,18 +78,14 @@ Add to `~/.cursor/mcp.json` (or project `.cursor/mcp.json`):
 
 ### Zed
 
-Add to `context_servers` in Zed settings:
-
 ```json
-"civic-api": {
+"civic-api-hosted": {
   "enabled": true,
   "url": "https://civicapi-mcp.vercel.app/mcp"
 }
 ```
 
 ## Local stdio MCP (Python)
-
-For Claude Desktop, Cursor, or Zed with a local process:
 
 ```bash
 pip install -r python/requirements.txt
@@ -72,7 +112,7 @@ python python/server.py
   "enabled": true,
   "remote": false,
   "command": "python",
-  "args": ["/absolute/path/to/civicapi-mcp/server.py"]
+  "args": ["/absolute/path/to/civicapi-mcp/python/server.py"]
 }
 ```
 
@@ -101,24 +141,7 @@ npm install
 vercel
 ```
 
-Or connect this repository in the [Vercel dashboard](https://vercel.com/new). The `api/server.ts` function is rewritten to serve `/mcp`.
-
-## Tools
-
-### `search_elections`
-
-Search live and historical races. At least one parameter is required:
-
-- `query` — election name or keywords (e.g. `Canada Federal Election, 2025`)
-- `type`, `province`, `district`, `country`, `election_type`, `election_date`
-
-### `get_race_by_id`
-
-Fetch full results for a race by civicAPI race ID (e.g. `3827`).
-
-### `get_api_status`
-
-Health check for civicAPI (`{"status":"ok"}` when available).
+Or connect this repository in the [Vercel dashboard](https://vercel.com/new). The `api/mcp.ts` function is rewritten to serve `/mcp`.
 
 ## Attribution
 
