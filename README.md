@@ -1,6 +1,66 @@
 # civicAPI MCP Server
 
-Model Context Protocol (MCP) server for [civicAPI](https://civicapi.org) — live and historical election results worldwide. No API keys required.
+Model Context Protocol (MCP) server for [civicAPI](https://civicapi.org) - live and historical US election results . No API keys or authentication required.
+
+## Hosted MCP (Vercel)
+
+Production: **https://civicapi-mcp.vercel.app/mcp**
+
+Use **Streamable HTTP** transport (not stdio).
+
+### Cursor
+
+```json
+{
+  "mcpServers": {
+    "civic-api-hosted": {
+      "url": "https://civicapi-mcp.vercel.app/mcp"
+    }
+  }
+}
+```
+
+### Zed
+
+```json
+"civic-api-hosted": {
+  "enabled": true,
+  "url": "https://civicapi-mcp.vercel.app/mcp"
+}
+```
+
+## Local stdio MCP (Python)
+
+Clone the project, then:
+
+```bash
+pip install -r python/requirements.txt
+python python/server.py
+```
+
+### Cursor (local)
+
+```json
+{
+  "mcpServers": {
+    "civic-api": {
+      "command": "python",
+      "args": ["/absolute/path/to/civicapi-mcp/python/server.py"]
+    }
+  }
+}
+```
+
+### Zed (local)
+
+```json
+"civic-api": {
+  "enabled": true,
+  "remote": false,
+  "command": "python",
+  "args": ["/absolute/path/to/civicapi-mcp/python/server.py"]
+}
+```
 
 ## Tools
 
@@ -58,90 +118,6 @@ All election years in the database.
 
 Service health check (`{"status":"ok"}` when available).
 
-## Hosted MCP (Vercel)
-
-Production: **https://civicapi-mcp.vercel.app/mcp**
-
-Use **Streamable HTTP** transport (not stdio).
-
-### Cursor
-
-```json
-{
-  "mcpServers": {
-    "civic-api-hosted": {
-      "url": "https://civicapi-mcp.vercel.app/mcp"
-    }
-  }
-}
-```
-
-### Zed
-
-```json
-"civic-api-hosted": {
-  "enabled": true,
-  "url": "https://civicapi-mcp.vercel.app/mcp"
-}
-```
-
-## Local stdio MCP (Python)
-
-```bash
-pip install -r python/requirements.txt
-python python/server.py
-```
-
-### Cursor (local)
-
-```json
-{
-  "mcpServers": {
-    "civic-api": {
-      "command": "python",
-      "args": ["/absolute/path/to/civicapi-mcp/python/server.py"]
-    }
-  }
-}
-```
-
-### Zed (local)
-
-```json
-"civic-api": {
-  "enabled": true,
-  "remote": false,
-  "command": "python",
-  "args": ["/absolute/path/to/civicapi-mcp/python/server.py"]
-}
-```
-
-## Development
-
-### Hosted server (TypeScript / Vercel)
-
-```bash
-npm install
-npm run dev
-```
-
-MCP endpoint: `http://localhost:3000/mcp`
-
-### Python server
-
-```bash
-pip install -r python/requirements.txt
-python python/server.py
-```
-
-## Deploy to Vercel
-
-```bash
-npm install
-vercel
-```
-
-Or connect this repository in the [Vercel dashboard](https://vercel.com/new). The `api/mcp.ts` function is rewritten to serve `/mcp`.
 
 ## Attribution
 
