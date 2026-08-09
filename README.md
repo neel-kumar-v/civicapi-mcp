@@ -84,6 +84,7 @@ Search by name, country, province, district, election type, and date range. At l
 - `election_type`
 - `start_date` / `end_date` — `YYYY-MM-DD`
 - `limit` — default 20, max 50000
+- `offset` — pagination offset
 
 ### `get_race_by_id`
 
@@ -94,6 +95,7 @@ Full race payload. Optional flags:
 - `data` — `json` or `csv`
 - `embed` — embed iframe JSON
 - `precinct` — include precinct-level results
+- `light` — exclude `region_results` for a lighter payload
 - `format` — map style (`percentage`, `raw`, etc.)
 
 Non-JSON responses (CSV, SVG, PNG) are returned with `_content_type` and `_body` or `_body_base64`.

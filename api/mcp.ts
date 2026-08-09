@@ -80,6 +80,7 @@ const handler = createMcpHandler(
         start_date: optionalString.describe("Start date filter (YYYY-MM-DD)"),
         end_date: optionalString.describe("End date filter (YYYY-MM-DD)"),
         limit: optionalInt.describe("Max races to return (default 20, max 50000)"),
+        offset: optionalInt.describe("Number of races to skip for pagination"),
       },
       async (params) => {
         const queryParams = buildParams({
@@ -91,11 +92,12 @@ const handler = createMcpHandler(
           startDate: params.start_date,
           endDate: params.end_date,
           limit: params.limit,
+          offset: params.offset,
         });
 
         if (Object.keys(queryParams).length === 0) {
           throw new Error(
-            "At least one parameter is required: query, country, province, district, election_type, start_date, end_date, or limit.",
+            "At least one parameter is required: query, country, province, district, election_type, start_date, end_date, limit, or offset.",
           );
         }
 
@@ -114,6 +116,7 @@ const handler = createMcpHandler(
         data: z.enum(["json", "csv"]).optional().describe("Response format (default json)"),
         embed: optionalBool.describe("Return embed iframe JSON"),
         precinct: optionalBool.describe("Include precinct data in region_results"),
+        light: optionalBool.describe("Exclude region_results for a lighter payload"),
         format: optionalString.describe("Map format (e.g. percentage, raw)"),
       },
       async (params) => {
@@ -124,6 +127,7 @@ const handler = createMcpHandler(
           data: params.data,
           embed: params.embed,
           precinct: params.precinct,
+          light: params.light,
           format: params.format,
         });
 

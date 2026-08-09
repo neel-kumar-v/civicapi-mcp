@@ -1,9 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "installCommand": "npm install",
-  "buildCommand": "",
-  "rewrites": [{ "source": "/(.+)", "destination": "/api/mcp" }],
+  "installCommand": "npm install && npm run typecheck",
+  "buildCommand": null,
+  "outputDirectory": null,
+  "rewrites": [{ "source": "/mcp", "destination": "/api/mcp" }],
   "functions": {
     "api/mcp.ts": {
       "maxDuration": 60

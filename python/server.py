@@ -1,4 +1,5 @@
 import base64
+
 import requests
 from mcp.server.fastmcp import FastMCP
 
@@ -45,6 +46,7 @@ def search_races(
     start_date: str | None = None,
     end_date: str | None = None,
     limit: int | None = None,
+    offset: int | None = None,
 ) -> dict | str:
     """
     Search races by name, country, province, district, election type, and date range.
@@ -60,11 +62,12 @@ def search_races(
         startDate=start_date,
         endDate=end_date,
         limit=limit,
+        offset=offset,
     )
     if not params:
         raise ValueError(
             "At least one parameter is required: query, country, province, district, "
-            "election_type, start_date, end_date, or limit."
+            "election_type, start_date, end_date, limit, or offset."
         )
     return _request("/race/search", params)
 
@@ -78,11 +81,12 @@ def get_race_by_id(
     data: str | None = None,
     embed: bool = False,
     precinct: bool = False,
+    light: bool = False,
     format: str | None = None,
 ) -> dict | str:
     """
     Fetch full results for a single race. Optional flags: generate_map (SVG),
-    generate_map_png, testdata, embed, precinct. data can be 'json' or 'csv'.
+    generate_map_png, testdata, embed, precinct, light. data can be 'json' or 'csv'.
     format customizes map output (e.g. percentage, raw).
     """
     params = _build_params(
@@ -92,6 +96,7 @@ def get_race_by_id(
         data=data,
         embed=embed,
         precinct=precinct,
+        light=light,
         format=format,
     )
     return _request(f"/race/{race_id}", params or None)
