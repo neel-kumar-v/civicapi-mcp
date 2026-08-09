@@ -1,8 +1,8 @@
 {
   "installCommand": "npm install",
-  "rewrites": [{ "source": "/(.+)", "destination": "/api/server" }],
+  "rewrites": [{ "source": "/(.+)", "destination": "/api/mcp" }],
   "functions": {
-    "api/server.ts": {
+    "api/mcp.ts": {
       "maxDuration": 60
     }
   }
