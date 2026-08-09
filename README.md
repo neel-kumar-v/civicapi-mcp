@@ -14,9 +14,7 @@ Wraps the civicAPI v2 endpoints:
 
 After deploying to Vercel, connect clients to:
 
-```text
-https://your-deployment.vercel.app/mcp
-```
+Production deployment: **https://civicapi-mcp.vercel.app/mcp**
 
 Use **Streamable HTTP** transport (not stdio).
 
@@ -28,7 +26,7 @@ Add to `~/.cursor/mcp.json` (or project `.cursor/mcp.json`):
 {
   "mcpServers": {
     "civic-api": {
-      "url": "https://your-deployment.vercel.app/mcp"
+      "url": "https://civicapi-mcp.vercel.app/mcp"
     }
   }
 }
@@ -41,7 +39,7 @@ Add to `context_servers` in Zed settings:
 ```json
 "civic-api": {
   "enabled": true,
-  "url": "https://your-deployment.vercel.app/mcp"
+  "url": "https://civicapi-mcp.vercel.app/mcp"
 }
 ```
 
