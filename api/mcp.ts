@@ -74,7 +74,9 @@ const handler = createMcpHandler(
       async () => asText(await civicGet("/status")),
     );
   },
-  {},
+  {
+    serverInfo: { name: "CivicAPI Elections", version: "1.0.0" },
+  },
   {
     streamableHttpEndpoint: "/mcp",
     sessionIdGenerator: undefined,
