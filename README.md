@@ -50,8 +50,8 @@ Add to `context_servers` in Zed settings:
 For Claude Desktop, Cursor, or Zed with a local process:
 
 ```bash
-pip install -r requirements.txt
-python server.py
+pip install -r python/requirements.txt
+python python/server.py
 ```
 
 ### Cursor (local)
@@ -61,7 +61,7 @@ python server.py
   "mcpServers": {
     "civic-api": {
       "command": "python",
-      "args": ["/absolute/path/to/civicapi-mcp/server.py"]
+      "args": ["/absolute/path/to/civicapi-mcp/python/server.py"]
     }
   }
 }
@@ -92,8 +92,8 @@ MCP endpoint: `http://localhost:3000/mcp`
 ### Python server
 
 ```bash
-pip install -r requirements.txt
-python server.py
+pip install -r python/requirements.txt
+python python/server.py
 ```
 
 ## Deploy to Vercel

@@ -1,5 +1,8 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
   "installCommand": "npm install",
+  "buildCommand": "npm run typecheck",
   "rewrites": [{ "source": "/(.+)", "destination": "/api/mcp" }],
   "functions": {
     "api/mcp.ts": {
