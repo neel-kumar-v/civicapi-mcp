@@ -4,7 +4,7 @@
   "private": true,
   "description": "MCP server for civicAPI election results — local stdio and Vercel-hosted HTTP",
   "engines": {
-    "node": "20.x"
+    "node": "24.x"
   },
   "scripts": {
     "dev": "vercel dev",
