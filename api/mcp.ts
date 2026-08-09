@@ -20,6 +20,16 @@ function buildParams(values: Record<string, QueryValue>): Record<string, string>
   return params;
 }
 
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
+}
+
 async function civicRequest(path: string, params?: Record<string, string>) {
   const url = new URL(`${BASE_URL}${path}`);
   if (params) {
@@ -41,10 +51,9 @@ async function civicRequest(path: string, params?: Record<string, string>) {
   }
 
   if (contentType.includes("image/")) {
-    const buffer = await response.arrayBuffer();
     return {
       _content_type: contentType,
-      _body_base64: Buffer.from(buffer).toString("base64"),
+      _body_base64: arrayBufferToBase64(await response.arrayBuffer()),
     };
   }
 
@@ -66,21 +75,24 @@ const optionalBool = z.boolean().optional();
 
 const handler = createMcpHandler(
   (server) => {
-    server.tool(
+    server.registerTool(
       "search_races",
-      "Search races by name, country, province, district, election type, and date range. At least one filter is required.",
       {
-        query: optionalString.describe(
-          "Race name to search for. Slow without other filters; prefer country/province/dates.",
-        ),
-        country: optionalString.describe("ISO 3166-1 alpha-2 country code (e.g. US)"),
-        province: optionalString.describe("Province code (e.g. AL, JP-07)"),
-        district: optionalString.describe("District name in English"),
-        election_type: optionalString.describe("Election type filter"),
-        start_date: optionalString.describe("Start date filter (YYYY-MM-DD)"),
-        end_date: optionalString.describe("End date filter (YYYY-MM-DD)"),
-        limit: optionalInt.describe("Max races to return (default 20, max 50000)"),
-        offset: optionalInt.describe("Number of races to skip for pagination"),
+        description:
+          "Search races by name, country, province, district, election type, and date range. At least one filter is required.",
+        inputSchema: {
+          query: optionalString.describe(
+            "Race name to search for. Slow without other filters; prefer country/province/dates.",
+          ),
+          country: optionalString.describe("ISO 3166-1 alpha-2 country code (e.g. US)"),
+          province: optionalString.describe("Province code (e.g. AL, JP-07)"),
+          district: optionalString.describe("District name in English"),
+          election_type: optionalString.describe("Election type filter"),
+          start_date: optionalString.describe("Start date filter (YYYY-MM-DD)"),
+          end_date: optionalString.describe("End date filter (YYYY-MM-DD)"),
+          limit: optionalInt.describe("Max races to return (default 20, max 50000)"),
+          offset: optionalInt.describe("Number of races to skip for pagination"),
+        },
       },
       async (params) => {
         const queryParams = buildParams({
@@ -105,19 +117,21 @@ const handler = createMcpHandler(
       },
     );
 
-    server.tool(
+    server.registerTool(
       "get_race_by_id",
-      "Fetch full JSON, CSV, map SVG/PNG, or embed payload for a single race.",
       {
-        race_id: z.string().describe("civicAPI race ID"),
-        generate_map: optionalBool.describe("Return rendered map SVG (has_map races only)"),
-        generate_map_png: optionalBool.describe("Return rendered map PNG"),
-        testdata: optionalBool.describe("Return random test data"),
-        data: z.enum(["json", "csv"]).optional().describe("Response format (default json)"),
-        embed: optionalBool.describe("Return embed iframe JSON"),
-        precinct: optionalBool.describe("Include precinct data in region_results"),
-        light: optionalBool.describe("Exclude region_results for a lighter payload"),
-        format: optionalString.describe("Map format (e.g. percentage, raw)"),
+        description: "Fetch full JSON, CSV, map SVG/PNG, or embed payload for a single race.",
+        inputSchema: {
+          race_id: z.string().describe("civicAPI race ID"),
+          generate_map: optionalBool.describe("Return rendered map SVG (has_map races only)"),
+          generate_map_png: optionalBool.describe("Return rendered map PNG"),
+          testdata: optionalBool.describe("Return random test data"),
+          data: z.enum(["json", "csv"]).optional().describe("Response format (default json)"),
+          embed: optionalBool.describe("Return embed iframe JSON"),
+          precinct: optionalBool.describe("Include precinct data in region_results"),
+          light: optionalBool.describe("Exclude region_results for a lighter payload"),
+          format: optionalString.describe("Map format (e.g. percentage, raw)"),
+        },
       },
       async (params) => {
         const queryParams = buildParams({
@@ -140,18 +154,21 @@ const handler = createMcpHandler(
       },
     );
 
-    server.tool(
+    server.registerTool(
       "get_race_history",
-      "List race history timestamps or fetch a snapshot at a specific UTC timestamp.",
       {
-        race_id: z.string().describe("civicAPI race ID"),
-        timestamp: optionalString.describe(
-          "UTC snapshot timestamp (YYYY-MM-DDTHH:MM:SS.sssZ). Omit to list timestamps.",
-        ),
-        generate_map: optionalBool.describe("Include map SVG for snapshot"),
-        generate_map_png: optionalBool.describe("Include map PNG for snapshot"),
-        light: optionalBool.describe("Exclude region_results for lighter payload"),
-        precinct: optionalBool.describe("Include precinct results when available"),
+        description:
+          "List race history timestamps or fetch a snapshot at a specific UTC timestamp.",
+        inputSchema: {
+          race_id: z.string().describe("civicAPI race ID"),
+          timestamp: optionalString.describe(
+            "UTC snapshot timestamp (YYYY-MM-DDTHH:MM:SS.sssZ). Omit to list timestamps.",
+          ),
+          generate_map: optionalBool.describe("Include map SVG for snapshot"),
+          generate_map_png: optionalBool.describe("Include map PNG for snapshot"),
+          light: optionalBool.describe("Exclude region_results for lighter payload"),
+          precinct: optionalBool.describe("Include precinct results when available"),
+        },
       },
       async (params) => {
         const path = params.timestamp
@@ -174,13 +191,16 @@ const handler = createMcpHandler(
       },
     );
 
-    server.tool(
+    server.registerTool(
       "get_election_dates",
-      "List election dates for a year, optionally filtered by country or province.",
       {
-        year: optionalInt.describe("Election year (YYYY). Defaults to current year."),
-        country: optionalString.describe("ISO country code filter"),
-        province: optionalString.describe("Province code filter"),
+        description:
+          "List election dates for a year, optionally filtered by country or province.",
+        inputSchema: {
+          year: optionalInt.describe("Election year (YYYY). Defaults to current year."),
+          country: optionalString.describe("ISO country code filter"),
+          province: optionalString.describe("Province code filter"),
+        },
       },
       async (params) => {
         const queryParams = buildParams({
@@ -198,17 +218,15 @@ const handler = createMcpHandler(
       },
     );
 
-    server.tool(
+    server.registerTool(
       "get_election_years",
-      "List all election years available in civicAPI.",
-      {},
+      { description: "List all election years available in civicAPI." },
       async () => asText(await civicRequest("/getElectionYears")),
     );
 
-    server.tool(
+    server.registerTool(
       "get_api_status",
-      "Check civicAPI service health and availability.",
-      {},
+      { description: "Check civicAPI service health and availability." },
       async () => asText(await civicRequest("/status")),
     );
   },
